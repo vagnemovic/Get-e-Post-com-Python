@@ -1,6 +1,65 @@
-#As bibliotecas utilizadas serão requests para as requisições http, json para poder trabalhar o arquivo json, caso haja necessidade e hashlib pois iremos importar uma resposta dentro do json, codificada em shaw1.
+#As bibliotecas utilizadas serão requests para as requisições http, json para poder trabalhar o arquivo json, caso haja necessidade e hashlib pois iremos importar uma resposta dentro do json, codificada em sha1.
 
 import requests as req
 import json
 import hashlib
 
+#Serão criadas duas funções, que receberão o json do GET que faremos e que deixará aberto o mesmo para podermos trabalhar
+
+def ler_json(nomeArquivo):
+    with open(nomeArquivo,'r') as arquivo:
+        return json.load(arquivo)
+ 
+def escreve_json(texto,nomeArquivo):
+    with open(nomeArquivo,'w') as arquivo:
+        json.dump(texto,arquivo)
+
+#Aqui é feita a requisição GET, da API que precisamos trabalhar e salvamos na variável 'response'
+response = req.get('API')
+
+#Aqui abrindo o json da requisição GET com a função escreve_json que nós criamos
+escreve_json(response.json(),'answer.json')
+
+#Esse é o conteúdo do arquivo json do GET, vou ocultar as respostas, mas a proposta é tratar o campo 'cifrado' que veio criptografado
+desafio = ler_json('answer.json')
+desafio
+{'numero_casas': 3,
+ 'token': 'token',
+ 'cifrado': 'wkh rqob frpsohwhob frqvlvwhqw shrsoh duh wkh ghdg. dogrxv kxaohb',
+ 'decifrado': '',
+ 'resumo_criptografico': ''}
+
+#Esse código, cria uma maneira de decifrar a criptografia de maneira simples, que é apenas substituindo os campos da mensagem
+alfabeto = 'abcdefghijklmnopqrstuvwxyz'
+decifrado = ''
+numero_casas = desafio['numero_casas']
+for letraCifrada in desafio['cifrado']:
+    if(re.match("^[A-Za-z]",letraCifrada)):
+        indice = alfabeto.index(letraCifrada)
+        nova_letra = alfabeto[(indice-numero_casas)]
+        desafio['decifrado']+= nova_letra
+    else:
+        desafio['decifrado']+=letraCifrada
+    
+#Essa daqui é a criptografia, claro que você, no seu código, não deve mostrar a resposta, isso deve ficar oculto no json, eu deixei aberto aqui apenas para mostrar que foi concluido com exito 
+desafio['decifrado']
+'the only completely consistent people are the dead. aldous huxley'
+
+#Esse momento é onde trabalho com o hashlib transformando a criptografia em sha1
+resumo_critografado = hashlib.sha1(desafio['decifrado'].encode())
+desafio['resumo_criptografico'] = resumo_critografado.hexdigest()
+
+desafio
+desafio
+desafio
+{'numero_casas': 3,
+ 'token': 'token',
+ 'cifrado': 'wkh rqob frpsohwhob frqvlvwhqw shrsoh duh wkh ghdg. dogrxv kxaohb',
+ 'decifrado': 'the only completely consistent people are the dead. aldous huxley',
+ 'resumo_criptografico': 'b178a3576d0ce1ef78f9a295085c9e3df0c0fea6'}
+ 
+escreve_json(desafio,'answer.json')
+
+#agora executando uma requisição POST para a API de resposta
+responseEnvio = req.post('API',files={'answer':open('answer.json','rb')})
+print(responseEnvio.json())
