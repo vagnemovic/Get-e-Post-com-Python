@@ -1,3 +1,6 @@
+#As bibliotecas utilizadas serão requests para as requisições http, json para poder trabalhar o arquivo json, caso haja necessidade e hashlib pois iremos importar uma resposta dentro do json, codificada em shaw1.
+
 import requests as req
 import json
 import hashlib
+
